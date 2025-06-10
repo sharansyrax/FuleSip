@@ -1,0 +1,27 @@
+.navbar{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 4%;
+}
+
+.logo{
+    display: flex;
+    flex-direction: column;
+
+}
+.logo b{
+    color:white;
+}
+.logo span{
+    color: rgb(84, 120, 84);
+}
+
+.logo img{
+    height: 50px;
+    width:160px;
+    width: max(10%,160px);
+}
+.navbar .profile{
+    width: 40px;
+}

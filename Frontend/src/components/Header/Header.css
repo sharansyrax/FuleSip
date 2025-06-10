@@ -1,0 +1,54 @@
+.header {
+    height: 800px;
+    background-image: url('/header_img.png');
+    background-repeat: no-repeat;
+    background-size: cover; /* cover is usually better than contain for hero images */
+    background-position: center;
+    position: relative;
+
+    display: flex;
+    align-items: flex-end; /* aligns content near the bottom */
+    padding: 0 4vw 5vh; /* add bottom padding */
+}
+
+.header-contents {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1.5vw;
+    max-width: 50%;
+}
+
+.header-contents button {
+  border: none;
+  color: rgb(76, 115, 76);
+  font-weight: 500;
+  padding: 1vw 2.3vw;
+  background-color: white;
+  font-size: max(1vw, 13px);
+  border-radius: 50px;
+  animation: fadeIn 5s;
+  cursor: pointer;
+}
+
+@media (max-width:1050px)
+{
+
+  .header-contents{
+    max-width: 45%;
+  }
+}
+
+@media (max-width:750px)
+{
+  
+  .header-contents{
+    max-width: 65%;
+  }
+  .header-contents p{
+   display: none;
+  }
+  .header-contents button{
+ padding: 2vw 4vw;
+  }
+}
