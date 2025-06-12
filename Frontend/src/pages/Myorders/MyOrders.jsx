@@ -1,12 +1,13 @@
-import React, { useContext, useEffect, useState } from "react"
-import "./MyOrders.css"
-import { StoreContext } from "../../Context/StoreContext"
-import axios from "axios"
-import { assets } from "../../assets/frontend_assets/assets.js"
-import { toast } from "react-toastify";
+import React, { useContext, useEffect, useState } from "react";
+import "./MyOrders.css";
+import { StoreContext } from "../../Context/StoreContext";
+import axios from "axios";
+import { assets } from "../../assets/frontend_assets/assets.js";
+import { toast } from "react-toastify"; // ✅ Add this for toast
+
 const MyOrders = () => {
-  const { url, token } = useContext(StoreContext)
-  const [data, setData] = useState([])
+  const { url, token } = useContext(StoreContext);
+  const [data, setData] = useState([]);
 
   const fetchOrders = async () => {
     try {
@@ -16,30 +17,30 @@ const MyOrders = () => {
         {
           headers: { token },
         }
-      )
-      setData(response.data.data)
-      console.log("Orders fetched:", response.data)
+      );
+      setData(response.data.data);
+      console.log("Orders fetched:", response.data);
     } catch (err) {
-      console.error("Error fetching orders:", err)
+      console.error("Error fetching orders:", err);
     }
-  }
+  };
 
- const trackOrder = async () => {
-  try {
-    await fetchOrders(); // Just re-fetch updated order list
-    toast.info("Order status refreshed");
-  } catch (err) {
-    console.error("Error refreshing order status:", err);
-    toast.error("Failed to refresh status");
-  }
-};
-
+  // ✅ Refresh status — no arguments needed
+  const trackOrder = async () => {
+    try {
+      await fetchOrders(); // Just refresh the order list
+      toast.info("Order status refreshed");
+    } catch (err) {
+      console.error("Error refreshing order status:", err);
+      toast.error("Failed to refresh status");
+    }
+  };
 
   useEffect(() => {
     if (token) {
-      fetchOrders()
+      fetchOrders();
     }
-  }, [token])
+  }, [token]);
 
   return (
     <div className="my-orders">
@@ -57,15 +58,28 @@ const MyOrders = () => {
             <p>₹{order.amount}.00</p>
             <p>Items: {order.items.length}</p>
             <p>
-              <span>&#x25cf;</span> <b>{order.status}</b>
+              <span>&#x25cf;</span>{" "}
+              <b
+                style={{
+                  color:
+                    order.status === "Delivered"
+                      ? "green"
+                      : order.status === "Out for delivery"
+                      ? "orange"
+                      : "gray",
+                }}
+              >
+                {order.status}
+              </b>
             </p>
 
-            <button onClick={() => trackOrder()}>Track Order</button>
+            {/* ✅ Just call trackOrder without argument */}
+            <button onClick={trackOrder}>Track Order</button>
           </div>
         ))}
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default MyOrders
+export default MyOrders;
