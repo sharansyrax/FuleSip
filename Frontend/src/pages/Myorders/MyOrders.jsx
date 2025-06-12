@@ -60,7 +60,7 @@ const MyOrders = () => {
               <span>&#x25cf;</span> <b>{order.status}</b>
             </p>
 
-            <button onClick={() => trackOrder(order._id)}>Track Order</button>
+            <button onClick={() => trackOrder()}>Track Order</button>
           </div>
         ))}
       </div>
