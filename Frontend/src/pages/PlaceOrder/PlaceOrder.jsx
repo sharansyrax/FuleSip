@@ -4,6 +4,7 @@ import "./PlaceOrder.css"
 import { useEffect, useState } from "react"
 import axios from "axios"
 import { useNavigate } from "react-router-dom"
+import  discount1 from "./pages/PlaceOrder/PlaceOrder";
 
 const PlaceOrder = () => {
   const { getTotalCartAmount, token, food_list, cartitems, url } =
