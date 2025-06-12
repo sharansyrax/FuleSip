@@ -1,39 +1,11 @@
-import React, { useContext, useState } from "react";
-import "./Cart.css";
-import { StoreContext } from "../../Context/StoreContext";
-import { useNavigate } from "react-router-dom";
-
-let discount1 ;
-
-
+import React, { useContext } from "react"
+import "./Cart.css"
+import { StoreContext } from "../../Context/StoreContext"
+import { useNavigate } from "react-router-dom"
 const Cart = () => {
-  const {
-    cartitems,
-    food_list,
-    removeFromCart,
-    getTotalCartAmount,
-    url,
-  } = useContext(StoreContext);
-
-  const navigate = useNavigate();
-  const [promoCode, setPromoCode] = useState("");
-  const [discountApplied, setDiscountApplied] = useState(false);
-  const [discountAmount, setDiscountAmount] = useState(0);
-  
-  const subtotal = getTotalCartAmount();
-  const deliveryFee = subtotal === 0 ? 0 : 40;
-  const totalBeforeDiscount = subtotal + deliveryFee;
-  const totalAfterDiscount = totalBeforeDiscount - discountAmount;
-
-  const handlePromoSubmit = () => {
-    if (promoCode.trim().toUpperCase() === "SAVE10" && !discountApplied) {
-      discount1=(getTotalCartAmount()+40)*0.1
-      const discount = totalBeforeDiscount * 0.1;
-      setDiscountAmount(discount);
-      setDiscountApplied(true);
-    }
-  };
-
+  const { cartitems, food_list, removeFromCart, getTotalCartAmount, url } =
+    useContext(StoreContext)
+  const navigate = useNavigate()
   return (
     <div className="cart">
       <div className="cart-items">
@@ -47,82 +19,62 @@ const Cart = () => {
         </div>
         <br />
         <hr />
-        {food_list.map((item) => {
+        {food_list.map((item, index) => {
           if (cartitems[item._id] > 0) {
             return (
               <div key={item._id}>
                 <div className="cart-items-title cart-items-item">
-                  <img src={url + "/images/" + item.image} alt={item.name} />
-                  <p>{item.name}</p>
-                  <p>₹{item.price}</p>
+                  <img src={url + "/images/" + item.image}></img>
+                  <p>{item.name} </p>
+                  <p>{item.price}</p>
                   <p>{cartitems[item._id]}</p>
-                  <p>₹{item.price * cartitems[item._id]}</p>
-                  <p
-                    className="cross"
-                    onClick={() => removeFromCart(item._id)}
-                  >
+                  <p>{item.price * cartitems[item._id]}</p>
+                  <p className="cross" onClick={() => removeFromCart(item._id)}>
                     x
                   </p>
                 </div>
-                <hr />
+                <hr></hr>
               </div>
-            );
+            )
           }
         })}
       </div>
-
       <div className="cart-bottom">
         <div className="cart-total">
           <h2>Cart Totals</h2>
           <div className="cart-total-details">
-            <p>Subtotal</p>
-            <p>₹{subtotal}</p>
+            <p>SubTotal</p>
+            <p>{getTotalCartAmount()}</p>
           </div>
-          <hr />
+          <hr></hr>
           <div className="cart-total-details">
             <p>Delivery Fee</p>
-            <p>₹{deliveryFee}</p>
+            <p>{getTotalCartAmount() === 0 ? 0 : 40}</p>
           </div>
           <hr />
-          {discountApplied && (
-            <>
-              <div className="cart-total-details">
-                <p>Promo Applied (SAVE10)</p>
-                <p>-₹{discountAmount.toFixed(2)}</p>
-              </div>
-              <hr />
-            </>
-          )}
           <div className="cart-total-details">
             <b>Total</b>
-            <b>₹{totalAfterDiscount.toFixed(2)}</b>
+            <b>
+              {getTotalCartAmount() + (getTotalCartAmount() === 0 ? 0 : 40)}
+            </b>
           </div>
           <button onClick={() => navigate("/order")}>
+            {" "}
             Proceed to checkout
           </button>
         </div>
-
         <div className="cart-promocode">
           <div>
-            <p>If you have promo code, enter it here</p>
+            <p>If you have promo code,Enter it here</p>
             <div className="cart-promocode-input">
-              <input
-                type="text"
-                placeholder="Try SAVE10 for 10% off"
-                value={promoCode}
-                onChange={(e) => setPromoCode(e.target.value)}
-              />
-              <button onClick={handlePromoSubmit}>Submit</button>
+              <input type="text" placeholder="promo code"></input>
+              <button>submit </button>
             </div>
-            {discountApplied && (
-              <p className="promo-success">✅ Promo code applied successfully!</p>
-            )}
           </div>
         </div>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default {Cart};
-export default discount1;
+export default Cart
