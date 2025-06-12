@@ -27,6 +27,24 @@ const Orders = ({ url }) => {
     console.log("URL passed to Orders:", url)
     fetchAllOrders()
   }, [])
+const handleStatusChange = async (orderId, newStatus) => {
+  try {
+    const response = await axios.post(url + "/api/order/status", {
+      orderId: orderId,
+      status: newStatus,
+    });
+
+    if (response.data.success) {
+      toast.success("Order status updated");
+      fetchAllOrders(); // Refresh the list
+    } else {
+      toast.error("Failed to update status");
+    }
+  } catch (error) {
+    console.error("Status update error:", error);
+    toast.error("Server error: " + error.message);
+  }
+};
 
   return (
     <div className="order  add">
@@ -67,7 +85,8 @@ const Orders = ({ url }) => {
               </div>
               <p>Items :{order.items.length}</p>
               <p>OrderAmount :₹{order.amount}</p>
-              <select>
+              <select  value={order.status}
+  onChange={(e) => handleStatusChange(order._id, e.target.value)}>
                 <option value="Food Processing">Food Processing</option>
                 <option value="Out for delivery">Out for deivery</option>
                 <option value="Delivered">Delivered</option>
