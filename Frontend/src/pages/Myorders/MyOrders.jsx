@@ -24,24 +24,16 @@ const MyOrders = () => {
     }
   }
 
-  const trackOrder = async (orderId) => {
-    try {
-      const response = await axios.post(
-        url + "/api/order/status",
-        { orderId, status: "Out for delivery" },
-        { headers: { token } }
-      )
-
-      if (response.data.success) {
-        console.log("Order status updated:", response.data)
-        await fetchOrders()
-      } else {
-        console.error("Status update failed")
-      }
-    } catch (err) {
-      console.error("Error updating order status:", err)
-    }
+ const trackOrder = async () => {
+  try {
+    await fetchOrders(); // Just re-fetch updated order list
+    toast.info("Order status refreshed");
+  } catch (err) {
+    console.error("Error refreshing order status:", err);
+    toast.error("Failed to refresh status");
   }
+};
+
 
   useEffect(() => {
     if (token) {
