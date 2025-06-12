@@ -3,7 +3,7 @@ import "./MyOrders.css"
 import { StoreContext } from "../../Context/StoreContext"
 import axios from "axios"
 import { assets } from "../../assets/frontend_assets/assets.js"
-
+import { toast } from "react-toastify";
 const MyOrders = () => {
   const { url, token } = useContext(StoreContext)
   const [data, setData] = useState([])
