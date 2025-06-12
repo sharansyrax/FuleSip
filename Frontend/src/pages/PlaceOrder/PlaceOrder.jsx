@@ -1,193 +1,52 @@
 import React, { useContext } from "react"
+import "./Cart.css"
 import { StoreContext } from "../../Context/StoreContext"
-import "./PlaceOrder.css"
-import { useEffect, useState } from "react"
-import axios from "axios"
 import { useNavigate } from "react-router-dom"
-import  discount1 from "./pages/PlaceOrder/PlaceOrder";
-
-const PlaceOrder = () => {
-  const { getTotalCartAmount, token, food_list, cartitems, url } =
+const Cart = () => {
+  const { cartitems, food_list, removeFromCart, getTotalCartAmount, url } =
     useContext(StoreContext)
-
-  const [data, setData] = useState({
-    firstName: "",
-    lastName: "",
-    email: "",
-    street: "",
-    city: "",
-    state: "",
-    zipcode: "",
-    country: "",
-    phone: "",
-  })
-
-  const onChangeHandler = (event) => {
-    const name = event.target.name
-    const value = event.target.value
-    setData((data) => ({ ...data, [name]: value }))
-  }
-
-  const PlaceOrder = async (event) => {
-    console.log("Entered placeOrder function")
-    event.preventDefault()
-
-    let order_items = []
-    food_list.forEach((item) => {
-      if (cartitems[item._id] > 0) {
-        let itemInfo = { ...item, quantity: cartitems[item._id] }
-        order_items.push(itemInfo)
-      }
-    })
-
-    let orderData = {
-      address: data,
-      items: order_items,
-      amount: getTotalCartAmount() + (getTotalCartAmount() === 0 ? 0 : 40),
-    }
-
-    console.log("Order Data:", orderData)
-
-    try {
-      let response = await axios.post(url + "/api/order/place", orderData, {
-        headers: { token },
-      })
-
-      console.log("Order Response:", response.data)
-
-      if (response.data.success) {
-        const { session_url } = response.data
-        window.location.replace(session_url)
-      } else {
-        console.error("❌ Order not successful:", response.data.message)
-        alert("Failed to place order. Please try again.")
-      }
-    } catch (error) {
-      console.error("❌ Error while placing order:", error)
-
-      if (error.response) {
-        // Server responded with an error code (4xx or 5xx)
-        console.error("📡 Server responded with an error:")
-        console.error("Status Code:", error.response.status)
-        console.error("Response Body:", error.response.data)
-        alert(
-          `Order failed: ${
-            error.response.data.message || "Something went wrong"
-          }`
-        )
-      } else if (error.request) {
-        // Request was made but no response
-        console.error("📭 Request made but no response received.")
-        console.error("Request:", error.request)
-        alert("No response from server. Please check your connection.")
-      } else {
-        // Other errors like request setup failed
-        console.error("🛠 Error setting up request:", error.message)
-        alert("Unexpected error occurred. Check console for details.")
-      }
-    }
-  }
   const navigate = useNavigate()
-  useEffect(() => {
-    if (!token) {
-      navigate("/cart")
-    } else if (getTotalCartAmount() == 0) {
-      navigate("/cart")
-    }
-  }, [token])
-
   return (
-    <form onSubmit={PlaceOrder} className="place-order">
-      <div className="place-order-left">
-        <p className="title">Delivery information</p>
-        <div className="multi-fields">
-          <input
-            required
-            name="firstName"
-            onChange={onChangeHandler}
-            value={data.firstName}
-            type="text"
-            placeholder="First Name"
-          />
-          <input
-            required
-            name="lastName"
-            onChange={onChangeHandler}
-            value={data.lastName}
-            type="text"
-            placeholder="Second Name"
-          />
+    <div className="cart">
+      <div className="cart-items">
+        <div className="cart-items-title">
+          <p>Items</p>
+          <p>Title</p>
+          <p>Price</p>
+          <p>Quantity</p>
+          <p>Total</p>
+          <p>Remove</p>
         </div>
-        <input
-          required
-          name="email"
-          onChange={onChangeHandler}
-          value={data.email}
-          type="email"
-          placeholder="Email Address"
-        />
-        <input
-          required
-          name="street"
-          onChange={onChangeHandler}
-          value={data.street}
-          type="text"
-          placeholder="Street"
-        />
-        <div className="multi-fields">
-          <input
-            required
-            name="city"
-            onChange={onChangeHandler}
-            value={data.city}
-            type="text"
-            placeholder="City"
-          />
-          <input
-            required
-            name="state"
-            onChange={onChangeHandler}
-            value={data.state}
-            type="text"
-            placeholder="State"
-          />
-        </div>
-        <div className="multi-fields">
-          <input
-            required
-            name="zipcode"
-            onChange={onChangeHandler}
-            value={data.zipcode}
-            type="text"
-            placeholder="Zip Code"
-          />
-          <input
-            required
-            name="country"
-            onChange={onChangeHandler}
-            value={data.country}
-            type="text"
-            placeholder="Country"
-          />
-        </div>
-        <input
-          required
-          name="phone"
-          onChange={onChangeHandler}
-          value={data.phone}
-          type="text"
-          placeholder="Phone no"
-        />
+        <br />
+        <hr />
+        {food_list.map((item, index) => {
+          if (cartitems[item._id] > 0) {
+            return (
+              <div key={item._id}>
+                <div className="cart-items-title cart-items-item">
+                  <img src={url + "/images/" + item.image}></img>
+                  <p>{item.name} </p>
+                  <p>{item.price}</p>
+                  <p>{cartitems[item._id]}</p>
+                  <p>{item.price * cartitems[item._id]}</p>
+                  <p className="cross" onClick={() => removeFromCart(item._id)}>
+                    x
+                  </p>
+                </div>
+                <hr></hr>
+              </div>
+            )
+          }
+        })}
       </div>
-
-      <div className="place-order-right">
+      <div className="cart-bottom">
         <div className="cart-total">
           <h2>Cart Totals</h2>
           <div className="cart-total-details">
             <p>SubTotal</p>
             <p>{getTotalCartAmount()}</p>
           </div>
-          <hr />
+          <hr></hr>
           <div className="cart-total-details">
             <p>Delivery Fee</p>
             <p>{getTotalCartAmount() === 0 ? 0 : 40}</p>
@@ -196,21 +55,26 @@ const PlaceOrder = () => {
           <div className="cart-total-details">
             <b>Total</b>
             <b>
-              {getTotalCartAmount() + (getTotalCartAmount() === 0 ? 0 : 40)-discount1}
+              {getTotalCartAmount() + (getTotalCartAmount() === 0 ? 0 : 40)}
             </b>
           </div>
-          <button
-            type="submit"
-            onClick={() => {
-              console.log("Button pressed")
-            }}
-          >
-            Proceed to Payment
+          <button onClick={() => navigate("/order")}>
+            {" "}
+            Proceed to checkout
           </button>
         </div>
+        <div className="cart-promocode">
+          <div>
+            <p>If you have promo code,Enter it here</p>
+            <div className="cart-promocode-input">
+              <input type="text" placeholder="promo code"></input>
+              <button>submit </button>
+            </div>
+          </div>
+        </div>
       </div>
-    </form>
+    </div>
   )
 }
 
-export default PlaceOrder
+export default Cart
