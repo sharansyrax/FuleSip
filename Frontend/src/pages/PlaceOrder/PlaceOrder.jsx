@@ -1,8 +1,8 @@
-import React, { useContext, useEffect, useState } from "react";
-import "./PlaceOrder.css";
-import { StoreContext } from "../../Context/StoreContext";
-import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import React, { useContext, useState, useEffect } from "react"
+import { StoreContext } from "../../Context/StoreContext"
+import "./PlaceOrder.css"
+import axios from "axios"
+import { useNavigate } from "react-router-dom"
 
 const PlaceOrder = () => {
   const {
@@ -11,8 +11,8 @@ const PlaceOrder = () => {
     food_list,
     cartitems,
     url,
-    discountAmount, // ✅ Get from StoreContext
-  } = useContext(StoreContext);
+    discountAmount, // ✅ use from context
+  } = useContext(StoreContext)
 
   const [data, setData] = useState({
     firstName: "",
@@ -24,82 +24,58 @@ const PlaceOrder = () => {
     zipcode: "",
     country: "",
     phone: "",
-  });
+  })
 
   const onChangeHandler = (event) => {
-    const name = event.target.name;
-    const value = event.target.value;
-    setData((data) => ({ ...data, [name]: value }));
-  };
+    const { name, value } = event.target
+    setData((prev) => ({ ...prev, [name]: value }))
+  }
 
-  const PlaceOrder = async (event) => {
-    event.preventDefault();
-    console.log("Entered placeOrder function");
+  const navigate = useNavigate()
 
-    let order_items = [];
-    food_list.forEach((item) => {
-      if (cartitems[item._id] > 0) {
-        let itemInfo = { ...item, quantity: cartitems[item._id] };
-        order_items.push(itemInfo);
-      }
-    });
+  useEffect(() => {
+    if (!token || getTotalCartAmount() === 0) {
+      navigate("/cart")
+    }
+  }, [token])
 
-    const deliveryFee = getTotalCartAmount() === 0 ? 0 : 40;
-    const finalAmount =
-      getTotalCartAmount() + deliveryFee - discountAmount;
+  const deliveryFee = getTotalCartAmount() === 0 ? 0 : 40
+  const finalAmount = getTotalCartAmount() + deliveryFee - discountAmount
 
-    let orderData = {
+  const PlaceOrderHandler = async (event) => {
+    event.preventDefault()
+
+    const order_items = food_list
+      .filter((item) => cartitems[item._id] > 0)
+      .map((item) => ({
+        ...item,
+        quantity: cartitems[item._id],
+      }))
+
+    const orderData = {
       address: data,
       items: order_items,
       amount: finalAmount,
-    };
-
-    console.log("Order Data:", orderData);
+    }
 
     try {
-      const response = await axios.post(
-        url + "/api/order/place",
-        orderData,
-        {
-          headers: { token },
-        }
-      );
-
-      console.log("Order Response:", response.data);
+      const response = await axios.post(url + "/api/order/place", orderData, {
+        headers: { token },
+      })
 
       if (response.data.success) {
-        const { session_url } = response.data;
-        window.location.replace(session_url);
+        window.location.replace(response.data.session_url)
       } else {
-        console.error("❌ Order not successful:", response.data.message);
-        alert("Failed to place order. Please try again.");
+        alert("Failed to place order. Please try again.")
       }
     } catch (error) {
-      console.error("❌ Error while placing order:", error);
-
-      if (error.response) {
-        alert(
-          `Order failed: ${
-            error.response.data.message || "Something went wrong"
-          }`
-        );
-      } else if (error.request) {
-        alert("No response from server. Please check your connection.");
-      } else {
-        alert("Unexpected error occurred. Check console for details.");
-      }
+      console.error("❌ Error placing order:", error)
+      alert("Something went wrong. Try again later.")
     }
-  };
-
-  const navigate = useNavigate();
-  useEffect(() => {
-    if (!token || getTotalCartAmount() === 0) {
-      navigate("/cart");
-    }
-  }, [token]);
+  }
 
   return (
-    <form onSubmit={PlaceOrder} className="place-order">
+    <form onSubmit={PlaceOrderHandler} className="place-order">
       <div className="place-order-left">
         <p className="title">Delivery information</p>
         <div className="multi-fields">
@@ -117,7 +93,7 @@ const PlaceOrder = () => {
             onChange={onChangeHandler}
             value={data.lastName}
             type="text"
-            placeholder="Second Name"
+            placeholder="Last Name"
           />
         </div>
         <input
@@ -178,7 +154,7 @@ const PlaceOrder = () => {
           onChange={onChangeHandler}
           value={data.phone}
           type="text"
-          placeholder="Phone no"
+          placeholder="Phone Number"
         />
       </div>
 
@@ -186,19 +162,19 @@ const PlaceOrder = () => {
         <div className="cart-total">
           <h2>Cart Totals</h2>
           <div className="cart-total-details">
-            <p>Subtotal</p>
+            <p>SubTotal</p>
             <p>₹{getTotalCartAmount()}</p>
           </div>
           <hr />
           <div className="cart-total-details">
             <p>Delivery Fee</p>
-            <p>₹{getTotalCartAmount() === 0 ? 0 : 40}</p>
+            <p>₹{deliveryFee}</p>
           </div>
           <hr />
           {discountAmount > 0 && (
             <>
               <div className="cart-total-details">
-                <p>Promo Applied</p>
+                <p>Promo Discount</p>
                 <p>-₹{discountAmount.toFixed(2)}</p>
               </div>
               <hr />
@@ -206,18 +182,13 @@ const PlaceOrder = () => {
           )}
           <div className="cart-total-details">
             <b>Total</b>
-            <b>
-              ₹
-              {getTotalCartAmount() +
-                (getTotalCartAmount() === 0 ? 0 : 40) -
-                discountAmount}
-            </b>
+            <b>₹{finalAmount.toFixed(2)}</b>
           </div>
           <button type="submit">Proceed to Payment</button>
         </div>
       </div>
     </form>
-  );
-};
+  )
+}
 
-export default PlaceOrder;
+export default PlaceOrder
