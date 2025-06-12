@@ -3,6 +3,9 @@ import "./Cart.css";
 import { StoreContext } from "../../Context/StoreContext";
 import { useNavigate } from "react-router-dom";
 
+let discount1 ;
+
+
 const Cart = () => {
   const {
     cartitems,
@@ -16,7 +19,7 @@ const Cart = () => {
   const [promoCode, setPromoCode] = useState("");
   const [discountApplied, setDiscountApplied] = useState(false);
   const [discountAmount, setDiscountAmount] = useState(0);
-
+  
   const subtotal = getTotalCartAmount();
   const deliveryFee = subtotal === 0 ? 0 : 40;
   const totalBeforeDiscount = subtotal + deliveryFee;
@@ -24,6 +27,7 @@ const Cart = () => {
 
   const handlePromoSubmit = () => {
     if (promoCode.trim().toUpperCase() === "SAVE10" && !discountApplied) {
+      discount1=(getTotalCartAmount()+40)*0.1
       const discount = totalBeforeDiscount * 0.1;
       setDiscountAmount(discount);
       setDiscountApplied(true);
@@ -120,4 +124,5 @@ const Cart = () => {
   );
 };
 
-export default Cart;
+export default {Cart};
+export default discount;
