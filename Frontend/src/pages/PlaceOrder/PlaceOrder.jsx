@@ -1,12 +1,13 @@
-import React, { useContext, useEffect, useState } from "react";
-import "./PlaceOrder.css";
-import { StoreContext } from "../../Context/StoreContext";
-import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import React, { useContext } from "react"
+import { StoreContext } from "../../Context/StoreContext"
+import "./PlaceOrder.css"
+import { useEffect, useState } from "react"
+import axios from "axios"
+import { useNavigate } from "react-router-dom"
 
 const PlaceOrder = () => {
   const { getTotalCartAmount, token, food_list, cartitems, url } =
-    useContext(StoreContext);
+    useContext(StoreContext)
 
   const [data, setData] = useState({
     firstName: "",
@@ -18,88 +19,81 @@ const PlaceOrder = () => {
     zipcode: "",
     country: "",
     phone: "",
-  });
-
-  const [promoCode, setPromoCode] = useState("");
-  const [discountApplied, setDiscountApplied] = useState(false);
-  const [discountAmount, setDiscountAmount] = useState(0);
-
-  const subtotal = getTotalCartAmount();
-  const deliveryFee = subtotal === 0 ? 0 : 40;
-  const totalBeforeDiscount = subtotal + deliveryFee;
-  const totalAfterDiscount = totalBeforeDiscount - discountAmount;
-
-  const handlePromoSubmit = () => {
-    if (promoCode.trim().toUpperCase() === "SAVE10" && !discountApplied) {
-      const discount = totalBeforeDiscount * 0.1;
-      setDiscountAmount(discount);
-      setDiscountApplied(true);
-    }
-  };
+  })
 
   const onChangeHandler = (event) => {
-    const name = event.target.name;
-    const value = event.target.value;
-    setData((data) => ({ ...data, [name]: value }));
-  };
+    const name = event.target.name
+    const value = event.target.value
+    setData((data) => ({ ...data, [name]: value }))
+  }
 
   const PlaceOrder = async (event) => {
-    event.preventDefault();
-    console.log("Entered placeOrder function");
+    console.log("Entered placeOrder function")
+    event.preventDefault()
 
-    let order_items = [];
+    let order_items = []
     food_list.forEach((item) => {
       if (cartitems[item._id] > 0) {
-        let itemInfo = { ...item, quantity: cartitems[item._id] };
-        order_items.push(itemInfo);
+        let itemInfo = { ...item, quantity: cartitems[item._id] }
+        order_items.push(itemInfo)
       }
-    });
+    })
 
     let orderData = {
       address: data,
       items: order_items,
-      amount: totalAfterDiscount,
-    };
+      amount: getTotalCartAmount() + (getTotalCartAmount() === 0 ? 0 : 40),
+    }
 
-    console.log("Order Data:", orderData);
+    console.log("Order Data:", orderData)
 
     try {
       let response = await axios.post(url + "/api/order/place", orderData, {
         headers: { token },
-      });
+      })
 
-      console.log("Order Response:", response.data);
+      console.log("Order Response:", response.data)
 
       if (response.data.success) {
-        const { session_url } = response.data;
-        window.location.replace(session_url);
+        const { session_url } = response.data
+        window.location.replace(session_url)
       } else {
-        console.error("❌ Order not successful:", response.data.message);
-        alert("Failed to place order. Please try again.");
+        console.error("❌ Order not successful:", response.data.message)
+        alert("Failed to place order. Please try again.")
       }
     } catch (error) {
-      console.error("❌ Error while placing order:", error);
+      console.error("❌ Error while placing order:", error)
 
       if (error.response) {
+        // Server responded with an error code (4xx or 5xx)
+        console.error("📡 Server responded with an error:")
+        console.error("Status Code:", error.response.status)
+        console.error("Response Body:", error.response.data)
         alert(
           `Order failed: ${
             error.response.data.message || "Something went wrong"
           }`
-        );
+        )
       } else if (error.request) {
-        alert("No response from server. Please check your connection.");
+        // Request was made but no response
+        console.error("📭 Request made but no response received.")
+        console.error("Request:", error.request)
+        alert("No response from server. Please check your connection.")
       } else {
-        alert("Unexpected error occurred. Check console for details.");
+        // Other errors like request setup failed
+        console.error("🛠 Error setting up request:", error.message)
+        alert("Unexpected error occurred. Check console for details.")
       }
     }
-  };
-
-  const navigate = useNavigate();
+  }
+  const navigate = useNavigate()
   useEffect(() => {
-    if (!token || subtotal === 0) {
-      navigate("/cart");
+    if (!token) {
+      navigate("/cart")
+    } else if (getTotalCartAmount() == 0) {
+      navigate("/cart")
     }
-  }, [token]);
+  }, [token])
 
   return (
     <form onSubmit={PlaceOrder} className="place-order">
@@ -183,54 +177,39 @@ const PlaceOrder = () => {
           type="text"
           placeholder="Phone no"
         />
-
-        <div className="promo-code-section">
-          <input
-            type="text"
-            placeholder="Try SAVE10 for 10% off"
-            value={promoCode}
-            onChange={(e) => setPromoCode(e.target.value)}
-          />
-          <button type="button" onClick={handlePromoSubmit}>
-            Apply
-          </button>
-          {discountApplied && (
-            <p className="promo-success">✅ Promo code applied</p>
-          )}
-        </div>
       </div>
 
       <div className="place-order-right">
         <div className="cart-total">
           <h2>Cart Totals</h2>
           <div className="cart-total-details">
-            <p>Subtotal</p>
-            <p>₹{subtotal}</p>
+            <p>SubTotal</p>
+            <p>{getTotalCartAmount()}</p>
           </div>
           <hr />
           <div className="cart-total-details">
             <p>Delivery Fee</p>
-            <p>₹{deliveryFee}</p>
+            <p>{getTotalCartAmount() === 0 ? 0 : 40}</p>
           </div>
           <hr />
-          {discountApplied && (
-            <>
-              <div className="cart-total-details">
-                <p>Promo (SAVE10)</p>
-                <p>-₹{discountAmount.toFixed(2)}</p>
-              </div>
-              <hr />
-            </>
-          )}
           <div className="cart-total-details">
             <b>Total</b>
-            <b>₹{totalAfterDiscount.toFixed(2)}</b>
+            <b>
+              {getTotalCartAmount() + (getTotalCartAmount() === 0 ? 0 : 40)}
+            </b>
           </div>
-          <button type="submit">Proceed to Payment</button>
+          <button
+            type="submit"
+            onClick={() => {
+              console.log("Button pressed")
+            }}
+          >
+            Proceed to Payment
+          </button>
         </div>
       </div>
     </form>
-  );
-};
+  )
+}
 
-export default PlaceOrder;
+export default PlaceOrder
