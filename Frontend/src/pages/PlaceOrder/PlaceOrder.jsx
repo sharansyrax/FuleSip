@@ -196,7 +196,7 @@ const PlaceOrder = () => {
           <div className="cart-total-details">
             <b>Total</b>
             <b>
-              {getTotalCartAmount() + (getTotalCartAmount() === 0 ? 0 : 40)}
+              {getTotalCartAmount() + (getTotalCartAmount() === 0 ? 0 : 40)-discount1}
             </b>
           </div>
           <button
