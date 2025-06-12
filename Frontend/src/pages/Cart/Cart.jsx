@@ -125,4 +125,4 @@ const Cart = () => {
 };
 
 export default {Cart};
-export default discount;
+export default discount1;
